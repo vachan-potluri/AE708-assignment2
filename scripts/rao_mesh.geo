@@ -107,7 +107,7 @@ For i In {1:7}
     out~{i}[] = Extrude{
         {1,0,0},
         {0,0,0},
-        5*Pi/180
+        15*Pi/180
     }{
         Surface{i};
         Layers{1};
@@ -117,9 +117,17 @@ EndFor
 Physical Volume("volume", 1) = {};
 Physical Surface("back", 1) = {};
 Physical Surface("front", 2) = {};
+Physical Surface("inflow", 3) = {};
+Physical Surface("outflow", 4) = {};
+Physical Surface("wall", 5) = {};
 For i In {1:7}
     Physical Volume(1) += {out~{i}[1]};
     Physical Surface(1) += {i};
     Physical Surface(2) += {out~{i}[0]};
 EndFor
+For i In {1:3}
+    Physical Surface(5) += {out~{i}[3]};
+EndFor
+Physical Surface(3) += {out_5[4], out_4[3], out_4[4], out_4[5]};
+Physical Surface(4) += {out_6[2], out_7[3], out_7[4], out_7[5]};
 
