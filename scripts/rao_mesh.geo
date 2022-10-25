@@ -91,15 +91,16 @@ Curve Loop(7) = {108,111,-109,-112};
 
 
 // plane surfaces, transfinite and recombine; extrude and physical entities
-Transfinite Curve{1} = 10 Using Progression 0.9;
-Transfinite Curve{2} = 10;
-Transfinite Curve{5,6} = 3;
-Transfinite Curve{8,9} = 20;
-Transfinite Curve{3,4,7,10,104,110} = 10;
-Transfinite Curve{100:102} = 5;
-Transfinite Curve{105,106} = 5;
-Transfinite Curve{107:109} = 5;
-Transfinite Curve{111,112} = 5;
+Transfinite Curve{1} = 21 Using Bump 0.2;
+Transfinite Curve{2} = 21 Using Bump 0.2;
+Transfinite Curve{5,6} = 4;
+Transfinite Curve{8,9} = 31 Using Progression 1.1;
+Transfinite Curve{3,4,7,10,104,110} = 21;
+Transfinite Curve{100:102} = 11 Using Progression 0.8;
+Transfinite Curve{105,106} = 11 Using Progression 1.3;
+Transfinite Curve{107:109} = 6;
+Transfinite Curve{111,112} = 6 Using Progression 1.5;
+rotation_angle = 3*Pi/180;
 For i In {1:7}
     Plane Surface(i) = {i};
     Transfinite Surface{i};
@@ -107,13 +108,19 @@ For i In {1:7}
     out~{i}[] = Extrude{
         {1,0,0},
         {0,0,0},
-        15*Pi/180
+        rotation_angle
     }{
         Surface{i};
         Layers{1};
         Recombine;
     };
 EndFor
+// rotate all entities for symmetry about xy plane
+Rotate{
+    {1,0,0},
+    {0,0,0},
+    -0.5*rotation_angle
+}{Point{:}; Curve{:}; Surface{:}; Volume{:};}
 Physical Volume("volume", 1) = {};
 Physical Surface("back", 1) = {};
 Physical Surface("front", 2) = {};
@@ -128,6 +135,9 @@ EndFor
 For i In {1:3}
     Physical Surface(5) += {out~{i}[3]};
 EndFor
-Physical Surface(3) += {out_5[4], out_4[3], out_4[4], out_4[5]};
+Physical Surface(3) += {out_5[4], out_4[5]};
 Physical Surface(4) += {out_6[2], out_7[3], out_7[4], out_7[5]};
+Physical Surface(5) += {out_4[3], out_4[4]};
+
+Mesh 3;
 
