@@ -15,7 +15,7 @@ def p_ratio_vs_M(M, gamma=1.4):
 def rho_ratio_vs_M(M, gamma=1.4):
     return (T_ratio_vs_M(M, gamma))**(1/(gamma-1))
 
-epsilon = 5 # exit area to throat area ratio
+epsilon = 4 # exit area to throat area ratio
 def f(M, gamma=1.4): return area_ratio_vs_M(M) - epsilon # the function to find roots
 M_e = scipy.optimize.fsolve(f, epsilon**0.5)[0]
 print("Exit area ratio: {:.3e}\nMach number: {:.3e}".format(epsilon, M_e))
