@@ -21,7 +21,7 @@ def get_area_ratio(x, diffuser_type="conical"):
     R_t = 1
     Rc_div = 0.4*R_t # curvature radius just after throat
     Rc_conv = 1.5*R_t
-    if diffuser_type == "conical":
+    if diffuser_type == "conical" or diffuser_type == "conical_offdesign":
         theta_n = 15*np.pi/180 # angle at point N
         x_n  = 0.4*R_t*np.sin(theta_n) # x coordinate of point N
         y_n = R_t + 0.4*R_t*(1-np.cos(theta_n)) # y coordinate of point N
@@ -63,17 +63,18 @@ def get_area_ratio(x, diffuser_type="conical"):
     else:
         assert False, "Incorrect diffuser type"
 
-indices = ["conical", "rao_K0.6", "rao_K0.8"]
+indices = ["conical", "rao_K0.6", "rao_K0.8", "conical_offdesign"]
 data_files = pd.Series(
     [
         "../run/conical/data/axis_data.csv",
         "../run/rao2_K0.6/data/axis_data.csv",
-        "../run/rao2_K0.8/data/axis_data.csv"
+        "../run/rao2_K0.8/data/axis_data.csv",
+        "../run/conical_offdesign/data/axis_data.csv"
     ],
     indices
 )
-plot_labels = pd.Series(["Conical", "Rao, $K=0.6$", "Rao, $K=0.8$"], indices)
-plot_styles = pd.Series(["r-", "b--", "g-."], indices)
+plot_labels = pd.Series(["Conical", "Rao, $K=0.6$", "Rao, $K=0.8$", "Conical, off-design"], indices)
+plot_styles = pd.Series(["r-", "b--", "g-.", "m:"], indices)
 
 fig1, axes1 = plt.subplots(3,1) # p, T and M vs X
 fig1.set_size_inches(4,7)
@@ -104,6 +105,12 @@ fig2.set_size_inches(4,5)
 variables = ["Ma", "p"]
 var_subaxes_id = pd.Series([0,1], variables)
 var_axis_label = pd.Series([r"$M$", r"$p$ [Pa]"], variables)
+# add isentropic variations first
+M = np.linspace(0.2, 3)
+axes2[var_subaxes_id.loc["Ma"]].plot(area_ratio_vs_M(M), M, "k-", alpha=0.5, label="Isentropic")
+axes2[var_subaxes_id.loc["p"]].plot(
+    area_ratio_vs_M(M), 287/p_ratio_vs_M(M), "k-", alpha=0.5, label="Isentropic"
+)
 for idx in indices:
     data = pd.read_csv(data_files.loc[idx])
     x = data["Points:0"]
@@ -117,10 +124,6 @@ for idx in indices:
             plot_styles.loc[idx],
             label=plot_labels.loc[idx]
         )
-# add isentropic variations
-M = np.linspace(0.2, 3)
-axes2[var_subaxes_id.loc["Ma"]].plot(area_ratio_vs_M(M), M, "m:", label="Isentropic")
-axes2[var_subaxes_id.loc["p"]].plot(area_ratio_vs_M(M), 287/p_ratio_vs_M(M), "m:", label="Isentropic")
 
 for var in variables:
     ax = axes2[var_subaxes_id.loc[var]]
